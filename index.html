@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Music</title>
+<title>Schmoundcloud</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="data:,">
 <!-- Bootstrap -->
@@ -167,41 +167,9 @@ function createTrackCard(file, title, artist, imageUrl) {
   const playBtn = card.querySelector(".play-btn");
   const timeLabel = card.querySelector(".track-time");
 
-  playBtn.addEventListener("click", () => {
-
-    // SAME TRACK → toggle play/pause
-    if (currentTrack === file) {
-      wavesurfer.playPause();
-      updatePlayButton(playBtn);
-      return;
-    }
-
-    // NEW TRACK
-    resetAllButtons();
-    removeHighlight();
-
-    currentTrack = file;
-    currentButton = playBtn;
-    currentCard = card;
-
-    highlightCard(card);
-
-    wavesurfer.load(file);
-
-    wavesurfer.once("ready", () => {
-      wavesurfer.play();
-      playBtn.textContent = "⏸";
-
-      // show duration once loaded
-      const duration = formatTime(wavesurfer.getDuration());
-      timeLabel.textContent = `0:00 / ${duration}`;
-    });
-
-    // Update mini player
-    miniTitle.innerText = title;
-    miniArtist.innerText = artist;
-    miniArtwork.src = imageUrl || "";
-    miniPlayer.style.display = "block";
+  card.addEventListener("click", () => {
+  const encoded = encodeURIComponent(file);
+  window.location.href = `track.html?track=${encoded}`;
   });
 
   // Update time counter while playing
