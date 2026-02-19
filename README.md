@@ -6,6 +6,7 @@ Soundcloud sucks, let's self-host tracks now
 ```
 /schmoundcloud
 ├── index.html
+├── track.html
 ├── tracks.js
 └── /music
     └── ...
