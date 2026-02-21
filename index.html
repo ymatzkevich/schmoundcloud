@@ -157,28 +157,15 @@ function createTrackCard(file, title, artist, imageUrl) {
     <div class="track-info ms-3">
       <div class="track-title">${title}</div>
       <div class="track-artist">${artist}</div>
-      <div class="track-time text-secondary" style="font-size:0.85rem;">
-        0:00 / 0:00
-      </div>
     </div>
     <button class="btn btn-sm btn-outline-light ms-auto play-btn">▶</button>
   `;
 
   const playBtn = card.querySelector(".play-btn");
-  const timeLabel = card.querySelector(".track-time");
 
   card.addEventListener("click", () => {
   const encoded = encodeURIComponent(file);
   window.location.href = `track.html?track=${encoded}`;
-  });
-
-  // Update time counter while playing
-  wavesurfer.on("audioprocess", () => {
-    if (currentTrack !== file) return;
-
-    const current = formatTime(wavesurfer.getCurrentTime());
-    const duration = formatTime(wavesurfer.getDuration());
-    timeLabel.textContent = `${current} / ${duration}`;
   });
 
   trackList.appendChild(card);
