@@ -54,6 +54,7 @@ body {
   <p id="artist" style="color:#aaa;"></p>
 
   <div id="waveform"></div>
+  <div id="timeDisplay">0:00 / 0:00</div>
 
   <button id="playBtn" class="btn btn-light mt-4">
     ▶ Play
@@ -62,8 +63,7 @@ body {
 </div>
 
 <script>
-const params = new URLSearchParams(window.location.search);
-const trackFile = params.get("track");
+const trackId = window.location.pathname.slice(1);
 
 if (!trackFile) {
   document.body.innerHTML = "No track specified";
@@ -107,7 +107,16 @@ fetch(trackFile)
             `data:${format};base64,${btoa(base64)}`;
         }
 
-        wavesurfer.load(trackFile);
+        Promise.all([
+          fetch(`/waveforms/${trackId}.mp3.json`).then(r=>r.json())
+        ]).then(([peaks]) => {
+
+          wavesurfer.load(
+            `/music/${trackId}.mp3`,
+            peaks.data
+          );
+
+        });
       }
     });
   });
@@ -122,6 +131,20 @@ playBtn.addEventListener("click", () => {
 wavesurfer.on("finish", () => {
   playBtn.innerText = "▶ Play";
 });
+
+wavesurfer.on("ready", () => {
+  totalDuration = wavesurfer.getDuration();
+  updateTime();
+});
+
+wavesurfer.on("audioprocess", updateTime);
+wavesurfer.on("seek", updateTime);
+
+function updateTime() {
+  const current = formatTime(wavesurfer.getCurrentTime());
+  const total = formatTime(totalDuration);
+  timeDisplay.innerText = `${current} / ${total}`;
+}
 </script>
 
 </body>
