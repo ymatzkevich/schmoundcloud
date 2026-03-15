@@ -2,27 +2,33 @@ const fs = require("fs");
 const path = require("path");
 const mm = require("music-metadata");
 
-const MUSIC_DIR = "./music";
-const OUTPUT = "./library.json";
+const MUSIC_DIR = path.join(__dirname, "music");
+const WAVEFORMS_DIR = path.join(__dirname, "waveforms");
+
+const OUTPUT = path.join(__dirname, "library.json");
+
+if (!fs.existsSync(WAVEFORMS_DIR)) {
+  fs.mkdirSync(WAVEFORMS_DIR);
+}
 
 async function buildLibrary() {
   const files = fs.readdirSync(MUSIC_DIR)
     .filter(f => f.endsWith(".mp3"));
 
   const tracks = [];
-  
-  fs.mkdirSync("waveforms", { recursive: true });
 
   for (const file of files) {
 
     const filepath = path.join(MUSIC_DIR, file);
     const metadata = await mm.parseFile(filepath);
-
+    const picture = metadata.common.picture[0]
+    
     tracks.push({
       id: file.replace(".mp3", ""), // URL slug
       file: `music/${file}`,
       title: metadata.common.title || file,
       artist: metadata.common.artist || "Unknown Artist",
+      image_source: `data:${picture.format};base64,${Buffer.from(picture.data, "utf-8").toString("base64")}`, // encoded cover art
       duration: Math.round(metadata.format.duration)
     });
 
@@ -37,7 +43,4 @@ async function buildLibrary() {
   console.log("Library built");
 }
 
-buildLibrary().then(()=> {
-  app.listen(3000);
-});
-
+buildLibrary();
