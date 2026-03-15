@@ -65,9 +65,13 @@ body {
 <script>
 const trackId = window.location.pathname.slice(1);
 
-if (!trackFile) {
-  document.body.innerHTML = "No track specified";
-}
+const cover = document.getElementById("cover")
+const title = document.getElementById("title")
+const artist = document.getElementById("artist")
+const playBtn = document.getElementById("playBtn")
+const timeDisplay = document.getElementById("timeDisplay")
+
+let totalDuration = 0
 
 // Waveform player
 const wavesurfer = WaveSurfer.create({
@@ -77,49 +81,34 @@ const wavesurfer = WaveSurfer.create({
   height: 120
 });
 
-const playBtn = document.getElementById("playBtn");
 
-// Load metadata
-fetch(trackFile)
-  .then(r => r.arrayBuffer())
-  .then(buffer => {
+fetch("/api/library")
+.then(r=>r.json())
+.then(tracks=>{
 
-    jsmediatags.read(new Blob([buffer]), {
-      onSuccess: tag => {
+  const track = tracks.find(t=>t.id===trackId)
 
-        const title = tag.tags.title || trackFile;
-        const artist = tag.tags.artist || "Unknown Artist";
+  if(!track){
+    document.body.innerHTML="Track not found"
+    return
+  }
 
-        document.getElementById("title").innerText = title;
-        document.getElementById("artist").innerText = artist;
+  title.innerText = track.title
+  artist.innerText = track.artist
 
-        // artwork
-        if (tag.tags.picture) {
-          const data = tag.tags.picture.data;
-          const format = tag.tags.picture.format;
+  const audioUrl = "/" + track.file
+  const waveformUrl = "/waveforms/" + track.id + ".mp3.json"
 
-          let base64 = "";
-          for (let i = 0; i < data.length; i++) {
-            base64 += String.fromCharCode(data[i]);
-          }
+  Promise.all([
+    fetch(waveformUrl).then(r=>r.json())
+  ])
+  .then(([peaks])=>{
 
-          document.getElementById("cover").src =
-            `data:${format};base64,${btoa(base64)}`;
-        }
+    wavesurfer.load(audioUrl, peaks.data)
 
-        Promise.all([
-          fetch(`/waveforms/${trackId}.mp3.json`).then(r=>r.json())
-        ]).then(([peaks]) => {
+  })
 
-          wavesurfer.load(
-            `/music/${trackId}.mp3`,
-            peaks.data
-          );
-
-        });
-      }
-    });
-  });
+})
 
 playBtn.addEventListener("click", () => {
   wavesurfer.playPause();
@@ -144,6 +133,13 @@ function updateTime() {
   const current = formatTime(wavesurfer.getCurrentTime());
   const total = formatTime(totalDuration);
   timeDisplay.innerText = `${current} / ${total}`;
+}
+
+function formatTime(sec) {
+  if (!sec) return "0:00";
+  const minutes = Math.floor(sec / 60);
+  const seconds = Math.floor(sec % 60).toString().padStart(2, "0");
+  return `${minutes}:${seconds}`;
 }
 </script>
 
