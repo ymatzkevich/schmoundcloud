@@ -93,6 +93,8 @@ fetch("/api/library")
     return
   }
 
+  cover.src = track.image_source
+
   title.innerText = track.title
   artist.innerText = track.artist
 
