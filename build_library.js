@@ -10,6 +10,8 @@ async function buildLibrary() {
     .filter(f => f.endsWith(".mp3"));
 
   const tracks = [];
+  
+  fs.mkdirSync("waveforms", { recursive: true });
 
   for (const file of files) {
 
@@ -23,6 +25,12 @@ async function buildLibrary() {
       artist: metadata.common.artist || "Unknown Artist",
       duration: Math.round(metadata.format.duration)
     });
+
+    const { execSync } = require("child_process");
+
+    execSync(
+      `audiowaveform -i ${filepath} -o waveforms/${file}.json -b 8`
+    );
   }
 
   fs.writeFileSync(OUTPUT, JSON.stringify(tracks, null, 2));
@@ -33,8 +41,3 @@ buildLibrary().then(()=> {
   app.listen(3000);
 });
 
-const { execSync } = require("child_process");
-
-execSync(
-  `audiowaveform -i ${filepath} -o waveforms/${file}.json -b 8`
-);
