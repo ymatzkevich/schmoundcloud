@@ -43,4 +43,4 @@ async function buildLibrary() {
   console.log("Library built");
 }
 
-buildLibrary();
+module.exports = buildLibrary;
