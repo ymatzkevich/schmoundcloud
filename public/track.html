@@ -33,12 +33,17 @@ body {
   left:20px;
   top:20px;
 }
+
+#playBtn img {
+  width: 24px;
+  height: 24px;
+}
 </style>
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark px-3">
   <a href="index.html" class="btn btn-outline-light">
-    ← All tracks
+    <img src="back.png" alt="Back" width="24px" height="24px"/>
   </a>
 
   <span class="navbar-brand mx-auto"></span>
@@ -57,7 +62,7 @@ body {
   <div id="timeDisplay">0:00 / 0:00</div>
 
   <button id="playBtn" class="btn btn-light mt-4">
-    ▶ Play
+    <img src="play.png" alt="▶" />
   </button>
 
 </div>
@@ -115,12 +120,12 @@ fetch("/api/library")
 playBtn.addEventListener("click", () => {
   wavesurfer.playPause();
 
-  playBtn.innerText =
-    wavesurfer.isPlaying() ? "⏸ Pause" : "▶ Play";
+  playBtn.innerHTML = 
+  wavesurfer.isPlaying() ? '<img src="pause.png" alt="⏸" />' : '<img src="play.png" alt="▶" />';
 });
 
 wavesurfer.on("finish", () => {
-  playBtn.innerText = "▶ Play";
+  playBtn.innerHTML = '<img src="play.png" alt="▶" />';
 });
 
 wavesurfer.on("ready", () => {
